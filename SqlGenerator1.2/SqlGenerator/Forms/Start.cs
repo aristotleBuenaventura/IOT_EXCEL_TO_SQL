@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -18,6 +19,7 @@ namespace SqlGenerator.Forms
         private string result;
         private bool _isLoading;
         List<ConnectionItem> connectionStrings;
+        DialogResult dialogResult;
 
 
         #region Properties
@@ -477,7 +479,7 @@ namespace SqlGenerator.Forms
         private void AddConnection()
         {
             var f = new Connection();
-            var dialogResult = f.ShowDialog();
+            dialogResult = f.ShowDialog();
             if (dialogResult == DialogResult.OK)
             {
                 var settings = SettingsHandler.Get();
@@ -497,7 +499,7 @@ namespace SqlGenerator.Forms
             }
 
             var f = new Connection { ConnectionString = SelectedTargetConnection.ConnectionString };
-            var dialogResult = f.ShowDialog();
+            dialogResult = f.ShowDialog();
             if (dialogResult == DialogResult.OK)
             {
                 SelectedTargetConnection.ConnectionString = f.ConnectionString;
@@ -695,11 +697,33 @@ namespace SqlGenerator.Forms
                 // Check user's choice
                 if (dialogResult == DialogResult.Yes)
                 {
-                    // Code to add data to the database
-                    // Add your SQL code or method to insert data to the database here
-                    // For example:
-                    // InsertDataToDatabase();
-                    MessageBox.Show("Data added to the database.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    try
+                    {
+                        // Connection string for your SQL Server
+                        string connectionString = "Server=localhost\\SQLEXPRESS;Database=aristotle;Trusted_Connection=True";
+
+                        using (SqlConnection connection = new SqlConnection(connectionString))
+                        {
+                            // Open the connection
+                            connection.Open();
+
+                            // Create a command object
+                            using (SqlCommand command = connection.CreateCommand())
+                            {
+                                // Set the command text to the result
+                                command.CommandText = result;
+
+                                // Execute the command
+                                int rowsAffected = command.ExecuteNonQuery();
+
+                                MessageBox.Show($"Data added to the database. Rows affected: {rowsAffected}", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("An error occurred while adding data to the database: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
                 else
                 {
@@ -711,6 +735,7 @@ namespace SqlGenerator.Forms
                 MessageBox.Show("No data to add to the database.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
+
 
 
 
