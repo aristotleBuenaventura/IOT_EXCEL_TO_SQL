@@ -689,6 +689,10 @@ namespace SqlGenerator.Forms
 
         private void btnEnterToTheDatabase(object sender, EventArgs e)
         {
+            ConnectionItem selectedConnection = SelectedTargetConnection;
+
+            // Now you can use the selected connection item as needed
+            string connectionString = selectedConnection.ConnectionString;
             if (!string.IsNullOrEmpty(result)) // Check if result is not empty
             {
                 // Display a prompt with "Yes" or "No" option
@@ -700,7 +704,7 @@ namespace SqlGenerator.Forms
                     try
                     {
                         // Connection string for your SQL Server
-                        string connectionString = "Server=localhost\\SQLEXPRESS;Database=aristotle;Trusted_Connection=True";
+                        //connectionString = "Server=localhost\\SQLEXPRESS;Database=aristotle;Trusted_Connection=True";
 
                         using (SqlConnection connection = new SqlConnection(connectionString))
                         {
